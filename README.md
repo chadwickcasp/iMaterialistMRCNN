@@ -2,8 +2,8 @@
 This repo contains scripts used for training a Mask RCNN to recognize and segment clothing in an image. Datasets come from the Kaggle compeition: [Materialist (Fashion) 2019 at FGVC6.](https://www.kaggle.com/c/imaterialist-fashion-2019-FGVC6/overview)
 
 ## Dependencies & Structure
-  * MRCNN trained on the COCO dataset to have a starting point. Use the command:   
-  `!wget --quiet https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5`  
+  * MRCNN trained on the COCO dataset to have a starting point. After cloning the repo, use the command:   
+  `wget --quiet https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5`  
     and put this in the `/Mask_RCNN` directory.
   * Data from the iMaterialist Fashion competition on Kaggle can be found [here.](https://www.kaggle.com/c/imaterialist-fashion-2019-FGVC6/data) Once downloaded, the data directory should be placed in this repo, with the following structure:  
 ```
