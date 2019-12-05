@@ -1,0 +1,11 @@
+Setting up the matterport environment
+
+Requirements:
+tensorflow (latest)
+tensorflow-gpu (latest)
+keras
+CUDA to match your machine (look here: https://www.tensorflow.org/install/source_windows#gpu)
+- ie - Cuda version needs to match your tensorflow-gpu version
+
+
+
