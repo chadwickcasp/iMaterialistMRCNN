@@ -23,3 +23,9 @@ To start training, download the files [here.](https://www.kaggle.com/c/imaterial
 
 ## Notes/Mods to Source/Etc.
   * In `mrcnn.py-->MaskRCNN()-->train()`, the workers were halved because using all cores was crashing my PC.
+
+## Sample Output
+Left image is the training data, right is the result output from trained network. These images were obtained using the `inference_sample.py` script.
+![Actor dude wearing a snazzy jacket.](https://raw.githubusercontent.com/chadwickcasp/iMaterialistMRCNN/master/samples/15861.png)
+![Lady wearing hip skirt ruffle outfit.](https://raw.githubusercontent.com/chadwickcasp/iMaterialistMRCNN/master/samples/21432.png)
+![Yeah...I know...that's not a headband.](https://raw.githubusercontent.com/chadwickcasp/iMaterialistMRCNN/master/samples/27603.png)
