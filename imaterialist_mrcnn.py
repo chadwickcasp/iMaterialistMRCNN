@@ -462,10 +462,11 @@ class iMaterialistMaxDimConfig(iMaterialistConfig):
         
         # Train with 4 imgs/GPU, as the images are large as Pednoi prescribes.
         self.GPU_COUNT = 1
+        # self.IMAGES_PER_GPU = 8
         # self.IMAGES_PER_GPU = 5
         # self.IMAGES_PER_GPU = 4
-        # self.IMAGES_PER_GPU = 3
-        self.IMAGES_PER_GPU = 2
+        self.IMAGES_PER_GPU = 3
+        # self.IMAGES_PER_GPU = 2
         
         # We will try to train on resized image data.
         self.IMAGE_MIN_DIM = MAX_DIM
@@ -495,7 +496,7 @@ class iMaterialistMaxDimConfig(iMaterialistConfig):
         self.WEIGHT_DECAY = 1e-4
         # self.WEIGHT_DECAY = 1e-5
 
-        self.LEARNING_MOMENTUM = 0.95
+        # self.LEARNING_MOMENTUM = 0.95
 
         self.compute_attributes()
 
@@ -694,7 +695,42 @@ def main():
 
     # ideally, this should be multilabel stratification
     # splits = kf.split(train_df_img_groups)
-    splits = mkf.split(train_df_img_groups, train_img_group_labels_binarized) 
+    splits = mkf.split(train_df_img_groups, train_img_group_labels_binarized)
+    splits = list(splits)
+    train_indices, valid_indices = splits[FOLD]
+    # train_indices, valid_indices = train_indices[FOLD], valid_indices[FOLD]
+    
+    def img_to_categories(groups, indices):
+        # train_groups = train_df_img_groups
+        names = [groups.iloc[ind].name for ind in indices]
+        category_ids = [groups.iloc[ind]['CategoryIds'] for ind in indices]
+        groups_cat_names = [[category_names[int(_id)] for _id in img] for img in category_ids]
+        names_categories = zip(names, groups_cat_names)
+        return names_categories
+
+    train_names_categories = img_to_categories(train_df_img_groups, train_indices)
+    valid_names_categories = img_to_categories(train_df_img_groups, valid_indices)
+    train_names, train_category_names = zip(*train_names_categories)
+    valid_names, valid_category_names = zip(*valid_names_categories)
+    train_categories = [train_df_img_groups.iloc[ind]['CategoryIds'] for ind in train_indices]
+    valid_categories = [train_df_img_groups.iloc[ind]['CategoryIds'] for ind in valid_indices]
+
+    def categories_to_hist(categories):
+        flattened_categories = [int(cat) for group in categories for cat in group]
+        hist = np.histogram(np.array(flattened_categories), bins=np.arange(len(category_names)))
+        return hist
+
+    def plot_categories_split(train_categories, valid_categories):
+        fig, axes = plt.subplots(2, 1, figsize=(16,8))
+        train_hist = categories_to_hist(train_categories)
+        print(train_hist)
+        axes[0].bar(train_hist[1][:-1], train_hist[0])
+        valid_hist = categories_to_hist(valid_categories)
+        print(valid_hist)
+        axes[1].bar(valid_hist[1][:-1], valid_hist[0])
+        plt.show()
+        sys.exit()
+
     # print(list(splits))
 
     def get_fold(splits):
@@ -819,7 +855,7 @@ def main():
     # LR = 1e-4
     # LR = 5e-5
     # LR = 1e-5
-    EPOCHS = [25, 50, 90]
+    EPOCHS = [25, 50, 110]
 
     config.EPOCHS = EPOCHS
     config.LRS = LRS
@@ -839,10 +875,14 @@ def main():
     INTERIM_WEIGHTS_PATH = '../'
     model = modellib.MaskRCNN(mode='training', config=config, model_dir=INTERIM_WEIGHTS_PATH)
     # WEIGHTS_PATH = INTERIM_WEIGHTS_PATH
-    INTERIM_WEIGHTS_PATH = model.find_last()
-    print("INTERIM_WEIGHTS_PATH:")
-    print(INTERIM_WEIGHTS_PATH)
-    starting_epoch = int(INTERIM_WEIGHTS_PATH.split('_')[-1].split('.')[0])
+    if not args.new:
+        INTERIM_WEIGHTS_PATH = model.find_last()
+        print("INTERIM_WEIGHTS_PATH:")
+        print(INTERIM_WEIGHTS_PATH)
+        starting_epoch = int(INTERIM_WEIGHTS_PATH.split('_')[-1].split('.')[0])
+    else:
+        starting_epoch = 0
+    print("Starting Epoch: {}".format(starting_epoch))
     EPOCHS = [e if e-starting_epoch > 0 else 0 for e in EPOCHS]
     # EPOCHS = [e-starting_epoch for e in EPOCHS if e-starting_epoch > 0]
     print("EPOCHS: {}".format(EPOCHS))
